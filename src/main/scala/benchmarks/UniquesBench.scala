@@ -1,12 +1,14 @@
 package benchmarks
 
-import java.util.concurrent.{ TimeUnit, ConcurrentHashMap }
-
-import scala.collection.mutable.{ Set => MSet }
-
+import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 import org.openjdk.jmh.annotations._
+import scala.collection.mutable.{ Set => MSet }
+import scala.collection.mutable.{ Map => MMap }
+import scala.collection.immutable.Map
+import scala.math.Ordering.{ Int => IntOrdering }
+import scalaz.{IMap, Order}
 
-// --- //
+// Tests the performance of inserting into various data structures, with collisions //
 
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
@@ -47,6 +49,74 @@ class UniquesBench {
   }
 
   @Benchmark
+  def mmap100: MMap[Int, Int] = mmap(arr0)
+  @Benchmark
+  def mmap1000: MMap[Int, Int] = mmap(arr1)
+  @Benchmark
+  def mmap10000: MMap[Int, Int] = mmap(arr2)
+
+  def mmap(arr: Array[Int]): MMap[Int, Int] = {
+    var mm: MMap[Int, Int] = MMap.empty
+    var i: Int = 0
+    val len: Int = arr.length
+
+    while (i < len) {
+      val n = arr(i)
+
+      mm += ((n, n))
+      i += 1
+    }
+
+    mm
+  }
+
+  @Benchmark
+  def mapb100: Map[Int, Int] = mapb(arr0)
+  @Benchmark
+  def mapb1000: Map[Int, Int] = mapb(arr1)
+  @Benchmark
+  def mapb10000: Map[Int, Int] = mapb(arr2)
+
+  def mapb(arr: Array[Int]): Map[Int, Int] = {
+    val mm = Map.newBuilder[Int,Int]
+    var i: Int = 0
+    val len: Int = arr.length
+
+    while (i < len) {
+      val n : Int = arr(i)
+
+      mm += ((n, n))
+      i += 1
+    }
+
+    mm.result()
+  }
+
+  @Benchmark
+  def map100: Map[Int, Int] = map(arr0)
+  @Benchmark
+  def map1000: Map[Int, Int] = map(arr1)
+  @Benchmark
+  def map10000: Map[Int, Int] = map(arr2)
+
+  def map(arr: Array[Int]): Map[Int, Int] = {
+    arr.foldLeft(Map.empty : Map[Int,Int])((acc: Map[Int,Int], e: Int) => acc + ((e,e)))
+  }
+
+  @Benchmark
+  def imap100: IMap[Int, Int] = imap(arr0)
+  @Benchmark
+  def imap1000: IMap[Int, Int] = imap(arr1)
+  @Benchmark
+  def imap10000: IMap[Int, Int] = imap(arr2)
+
+  def imap(arr: Array[Int]): IMap[Int, Int] = {
+    implicit val order = Order.fromScalaOrdering(IntOrdering)
+
+    arr.foldLeft(IMap.empty:IMap[Int,Int])((acc: IMap[Int,Int], e: Int) => acc + ((e,e)))
+  }
+
+  @Benchmark
   def set100: Set[(Int, Int)] = set(arr0)
   @Benchmark
   def set1000: Set[(Int, Int)] = set(arr1)
@@ -54,18 +124,7 @@ class UniquesBench {
   def set10000: Set[(Int, Int)] = set(arr2)
 
   def set(arr: Array[Int]): Set[(Int, Int)] = {
-    var s: Set[(Int, Int)] = Set.empty
-    var i: Int = 0
-    val len: Int = arr.length
-
-    while (i < len) {
-      val n = arr(i)
-
-      s = s + ((n, n))
-      i += 1
-    }
-
-    s
+    arr.foldLeft(Set.empty : Set[(Int,Int)])((acc: Set[(Int,Int)], e: Int) => acc + ((e,e)))
   }
 
   @Benchmark
@@ -89,5 +148,4 @@ class UniquesBench {
 
     s
   }
-
 }
