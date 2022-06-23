@@ -4,14 +4,11 @@ import java.util.concurrent.{ TimeUnit, ConcurrentHashMap }
 
 import scala.collection.mutable.{ Set => MSet }
 import scala.collection.mutable.{ Map => MMap }
-import scala.collection.immutable.{ Map => IMMMap }
+import scala.collection.immutable.Map
 import scala.math.Ordering.{ Int => IntOrdering }
 import scalaz.IMap
 import scalaz.Order
-
-
 import org.openjdk.jmh.annotations._
-import scala.collection.mutable.Map
 
 //
 // Tests the performance of inserting into various Map data structures, without collisions
@@ -27,9 +24,9 @@ class MapInsertBench {
 
   @Setup
   def setup: Unit = {
-    arr0 = Array.range(0, 50)
-    arr1 = Array.range(0, 500)
-    arr2 = Array.range(0, 5000)
+    arr0 = Array.range(0, 100)
+    arr1 = Array.range(0, 1000)
+    arr2 = Array.range(0, 10000)
   }
 
   @Benchmark
@@ -76,16 +73,15 @@ class MapInsertBench {
     mm
   }
 
+  @Benchmark
+  def mapb100: Map[Int, Int] = mapb(arr0)
+  @Benchmark
+  def mapb1000: Map[Int, Int] = mapb(arr1)
+  @Benchmark
+  def mapb10000: Map[Int, Int] = mapb(arr2)
 
-  @Benchmark
-  def mapb100: IMMMap[Int, Int] = mapb(arr0)
-  @Benchmark
-  def mapb1000: IMMMap[Int, Int] = mapb(arr1)
-  @Benchmark
-  def mapb10000: IMMMap[Int, Int] = mapb(arr2)
-
-  def mapb(arr: Array[Int]): IMMMap[Int, Int] = {
-    val mm = scala.collection.immutable.Map.newBuilder[Int,Int]
+  def mapb(arr: Array[Int]): Map[Int, Int] = {
+    val mm = Map.newBuilder[Int,Int]
     var i: Int = 0
     val len: Int = arr.length
 
@@ -99,16 +95,15 @@ class MapInsertBench {
     mm.result()
   }
 
+  @Benchmark
+  def map100: Map[Int, Int] = map(arr0)
+  @Benchmark
+  def map1000: Map[Int, Int] = map(arr1)
+  @Benchmark
+  def map10000: Map[Int, Int] = map(arr2)
 
-  @Benchmark
-  def map100: IMMMap[Int, Int] = map(arr0)
-  @Benchmark
-  def map1000: IMMMap[Int, Int] = map(arr1)
-  @Benchmark
-  def map10000: IMMMap[Int, Int] = map(arr2)
-
-  def map(arr: Array[Int]): IMMMap[Int, Int] = {
-    var m: IMMMap[Int, Int] = IMMMap.empty
+  def map(arr: Array[Int]): Map[Int, Int] = {
+    var m: Map[Int, Int] = Map.empty
     var i: Int = 0
     val len: Int = arr.length
 
@@ -146,7 +141,6 @@ class MapInsertBench {
 
     m
   }
-
 
   @Benchmark
   def set100: Set[(Int, Int)] = set(arr0)
@@ -191,5 +185,4 @@ class MapInsertBench {
 
     s
   }
-
 }
