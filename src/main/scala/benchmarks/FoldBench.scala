@@ -156,7 +156,11 @@ class FoldBench {
   def streamSum: Int = stream.sum
 
   @Benchmark
-  def estreamFoldLeft: Int = estream.foldLeft(0) { acc => { n => acc + n } }
+  def estreamFoldLeft: Int = estream.foldLeft(0)(funLeft)
+  val funLeft : (Int, => Int) => Int = (acc, n) => acc + n
+
   @Benchmark
-  def estreamFoldRight: Int = estream.foldRight(0) { n => { acc => n + acc } }
+  def estreamFoldRight: Int = estream.foldRight(0)(funRight)
+  val funRight : (=> Int, => Int) => Int = (n, acc) => n + acc
+  
 }
