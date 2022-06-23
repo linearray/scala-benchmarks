@@ -9,6 +9,7 @@ import scala.math.Ordering.{ Int => IntOrdering }
 import scalaz.{IMap, Order}
 
 // Tests the performance of inserting into various data structures, with collisions //
+// FIXME: Add benchmark for immutable.Map.toMap
 
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MICROSECONDS)

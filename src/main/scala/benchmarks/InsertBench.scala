@@ -12,7 +12,8 @@ import org.openjdk.jmh.annotations._
 
 //
 // Tests the performance of inserting into various data structures, without collisions
-//
+// FIXME: Add benchmark for immutable.Map.toMap
+
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
