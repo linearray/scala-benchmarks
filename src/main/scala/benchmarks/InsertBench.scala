@@ -11,12 +11,12 @@ import scalaz.Order
 import org.openjdk.jmh.annotations._
 
 //
-// Tests the performance of inserting into various Map data structures, without collisions
+// Tests the performance of inserting into various data structures, without collisions
 //
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
-class MapInsertBench {
+class InsertBench {
 
   var arr0: Array[Int] = _
   var arr1: Array[Int] = _
@@ -103,19 +103,7 @@ class MapInsertBench {
   def map10000: Map[Int, Int] = map(arr2)
 
   def map(arr: Array[Int]): Map[Int, Int] = {
-    var m: Map[Int, Int] = Map.empty
-    var i: Int = 0
-    val len: Int = arr.length
-
-    // FIXME: This is kinda stupid
-    while (i < len) {
-      val n = arr(i)
-
-      m = m + ((n, n))
-      i += 1
-    }
-
-    m
+    arr.foldLeft(Map.empty : Map[Int,Int])((acc: Map[Int,Int], e: Int) => acc + ((e,e)))
   }
 
   @Benchmark
@@ -126,20 +114,9 @@ class MapInsertBench {
   def imap10000: IMap[Int, Int] = imap(arr2)
 
   def imap(arr: Array[Int]): IMap[Int, Int] = {
-    var m: IMap[Int, Int] = IMap.empty
-    var i: Int = 0
-    val len: Int = arr.length
     implicit val order = Order.fromScalaOrdering(IntOrdering)
 
-    // FIXME: This is kinda stupid
-    while (i < len) {
-      val n = arr(i)
-
-      m = m + (n, n)
-      i += 1
-    }
-
-    m
+    arr.foldLeft(IMap.empty:IMap[Int,Int])((acc: IMap[Int,Int], e: Int) => acc + ((e,e)))
   }
 
   @Benchmark
@@ -150,18 +127,7 @@ class MapInsertBench {
   def set10000: Set[(Int, Int)] = set(arr2)
 
   def set(arr: Array[Int]): Set[(Int, Int)] = {
-    var s: Set[(Int, Int)] = Set.empty
-    var i: Int = 0
-    val len: Int = arr.length
-
-    while (i < len) {
-      val n = arr(i)
-
-      s = s + ((n, n))
-      i += 1
-    }
-
-    s
+    arr.foldLeft(Set.empty : Set[(Int,Int)])((acc: Set[(Int,Int)], e: Int) => acc + ((e,e)))
   }
 
   @Benchmark
